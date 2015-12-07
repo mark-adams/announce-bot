@@ -1,4 +1,4 @@
-package main
+package announcebot
 
 import (
 	"github.com/kelseyhightower/envconfig"
@@ -14,6 +14,8 @@ type Configuration struct {
 	HipchatUser     string `envconfig:"HIPCHAT_USER" required:"true"`
 	HipchatPassword string `envconfig:"HIPCHAT_PASSWORD" required:"true"`
 	HipchatAPIToken string `envconfig:"HIPCHAT_API_TOKEN" required:"true"`
+	AnnounceRoom    string `envconfig:"ANNOUNCE_ROOM" default:"-1"`
+	TestRoom        string `envconfig:"TEST_ROOM" required:"true"`
 	RedisAddress    string `envconfig:"REDIS_ADDRESS" default:"localhost:6379"`
 	RedisPassword   string `envconfig:"REDIS_PASSWORD"`
 	RedisDB         int64  `envconfig:"REDIS_DB" default:"0"`

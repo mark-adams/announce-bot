@@ -1,7 +1,10 @@
-package main
+package announcebot
 
 import (
+	"net/http"
 	"strings"
+
+	"github.com/gorilla/context"
 )
 
 func parseUser(user string) string {
@@ -10,4 +13,11 @@ func parseUser(user string) string {
 
 	return ids[1]
 
+}
+
+func getConfiguration(r *http.Request) *Configuration {
+	if rv := context.Get(r, "config"); rv != nil {
+		return rv.(*Configuration)
+	}
+	return nil
 }
