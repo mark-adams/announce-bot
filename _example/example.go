@@ -1,8 +1,13 @@
 package main
 
-import "github.com/mark-adams/announce-bot"
+import (
+	log "github.com/Sirupsen/logrus"
+	"github.com/mark-adams/announce-bot"
+)
 
 func main() {
+	log.SetLevel(log.DebugLevel)
+
 	config, err := announcebot.LoadConfigFromEnv("EXAMPLE")
 	if err != nil {
 		panic(err)

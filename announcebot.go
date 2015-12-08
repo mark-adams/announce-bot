@@ -215,16 +215,22 @@ func (bot *AnnounceBot) getRoutes() http.Handler {
 }
 
 func (bot *AnnounceBot) handleChatMessage(talk *xmpp.Client, user string, message string) {
+	userID := parseUser(user)
+
+	userlog := log.WithField("user", userID)
+	userlog.WithField("message", message).Info("Received message")
+
+	if !bot.lockMessage(user, message) {
+		userlog.Debug("Could not acquire lock... skipping")
+		return
+	}
+
 	reply := "I'm sorry. I didn't understand what you said. Try 'subscribe' or 'unsubscribe'"
 
 	if message == "" {
 		return
 	}
 
-	userID := parseUser(user)
-
-	userlog := log.WithField("user", userID)
-	userlog.WithField("message", message).Info("Received message")
 	defer func() {
 		userlog.WithField("message_reply", reply).Info("Replied to message")
 	}()
@@ -271,6 +277,16 @@ func (bot *AnnounceBot) getXMPPClient() (*xmpp.Client, error) {
 	return options.NewClient()
 }
 
+func (bot *AnnounceBot) lockMessage(user string, message string) bool {
+	result := bot.db.SetNX(fmt.Sprintf("lock::%s::%s", user, message), 1, 4*time.Second)
+	err := result.Err()
+	if err != nil {
+		log.WithError(err).Error("Could not aquire lock because of an error")
+	}
+
+	return result.Val()
+}
+
 func (bot *AnnounceBot) serveXMPP() {
 	talk, err := bot.getXMPPClient()
 	if err != nil {
@@ -293,8 +309,11 @@ func (bot *AnnounceBot) serveXMPP() {
 			if err != nil {
 				log.Fatal(err)
 			}
+			log.WithField("chat_message", chat).Debug("Received XMPP message")
+
 			switch v := chat.(type) {
 			case xmpp.Chat:
+				log.Debug(v.Other)
 				bot.handleChatMessage(talk, v.Remote, v.Text)
 			}
 		}
