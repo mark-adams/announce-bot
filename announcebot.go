@@ -281,8 +281,9 @@ func (bot *AnnounceBot) serveXMPP() {
 
 	go func() {
 		for {
-			talk.PingC2S("", "")
-			time.Sleep(150 * time.Second)
+			talk.PingC2S(bot.Config.HipchatUser, bot.Config.HipchatXMPPHost)
+			log.Debug("Sent XMPP ping")
+			time.Sleep(30 * time.Second)
 		}
 	}()
 
