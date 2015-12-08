@@ -58,7 +58,8 @@ func (bot *AnnounceBot) announceHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if config.AnnounceRoom != "-1" {
-		_, err := bot.chatAPI.Room.Notification(config.AnnounceRoom, &hipchat.NotificationRequest{Message: message})
+		_, err := bot.chatAPI.Room.Notification(
+			config.AnnounceRoom, &hipchat.NotificationRequest{Message: message})
 		if err != nil {
 			log.WithError(err).Error("An error occurred while sending the announcement to the room")
 		} else {
@@ -95,7 +96,13 @@ func (bot *AnnounceBot) announceHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (bot *AnnounceBot) testHandler(w http.ResponseWriter, r *http.Request) {
-	_, err := bot.chatAPI.Room.Notification(bot.Config.TestRoom, &hipchat.NotificationRequest{Message: "This is a test message!"})
+	_, err := bot.chatAPI.Room.Notification(
+		bot.Config.TestRoom,
+		&hipchat.NotificationRequest{
+			Message: "This is a test message!",
+			Notify:  true,
+		},
+	)
 	if err != nil {
 		log.WithError(err).Error("An errorr occurred while sending the test message")
 	}
@@ -175,7 +182,7 @@ func (bot *AnnounceBot) subscriptionHandler(w http.ResponseWriter, r *http.Reque
 	vars := mux.Vars(r)
 	userID := vars["user_id"]
 
-	if r.Method == "PUT" {
+	if r.Method == "PUT" || r.Method == "POST" {
 		retCode, err = bot.subscribeUser(userID)
 	} else if r.Method == "DELETE" {
 		retCode, err = bot.unsubscribeUser(userID)
@@ -206,7 +213,7 @@ func (bot *AnnounceBot) getRoutes() http.Handler {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/subscribers", bot.withBotContext(bot.subscriptionListHandler)).Methods("GET")
-	r.HandleFunc("/subscriber/{user_id}", bot.withBotContext(bot.subscriptionHandler)).Methods("GET", "DELETE", "PUT")
+	r.HandleFunc("/subscriber/{user_id}", bot.withBotContext(bot.subscriptionHandler)).Methods("GET", "DELETE", "POST", "PUT")
 	r.HandleFunc("/announce", bot.withBotContext(bot.announceHandler)).Methods("POST")
 	r.HandleFunc("/test", bot.withBotContext(bot.testHandler)).Methods("POST")
 	r.HandleFunc("/debug/health", health.StatusHandler)
