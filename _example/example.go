@@ -9,8 +9,11 @@ func main() {
 	}
 
 	bot := announcebot.NewAnnounceBot(*config)
-	bot.MessageFactory = func() string {
-		return "Hello! It worked!"
+
+	// Set your own message factory returning a string for
+	//
+	bot.MessageFactory = func() (string, error) {
+		return "Hello! It worked!", nil
 	}
 
 	err = bot.ListenAndStart()
