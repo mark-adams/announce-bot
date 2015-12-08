@@ -59,7 +59,12 @@ func (bot *AnnounceBot) announceHandler(w http.ResponseWriter, r *http.Request) 
 
 	if config.AnnounceRoom != "-1" {
 		_, err := bot.chatAPI.Room.Notification(
-			config.AnnounceRoom, &hipchat.NotificationRequest{Message: message})
+			config.AnnounceRoom,
+			&hipchat.NotificationRequest{
+				Message: message,
+				Notify:  true,
+			},
+		)
 		if err != nil {
 			log.WithError(err).Error("An error occurred while sending the announcement to the room")
 		} else {
