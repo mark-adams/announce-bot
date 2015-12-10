@@ -61,8 +61,9 @@ func (bot *AnnounceBot) announceHandler(w http.ResponseWriter, r *http.Request) 
 		_, err := bot.chatAPI.Room.Notification(
 			config.AnnounceRoom,
 			&hipchat.NotificationRequest{
-				Message: message,
-				Notify:  true,
+				Message:       message,
+				Notify:        true,
+				MessageFormat: "html",
 			},
 		)
 		if err != nil {
