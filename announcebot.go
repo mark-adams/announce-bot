@@ -63,7 +63,7 @@ func (bot *AnnounceBot) announceHandler(w http.ResponseWriter, r *http.Request) 
 			&hipchat.NotificationRequest{
 				Message:       message,
 				Notify:        true,
-				MessageFormat: "html",
+				MessageFormat: "text",
 			},
 		)
 		if err != nil {
