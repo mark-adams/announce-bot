@@ -1,6 +1,7 @@
 package announcebot
 
 import (
+	"crypto/tls"
 	"time"
 
 	"github.com/mattn/go-xmpp"
@@ -15,6 +16,9 @@ func (bot *AnnounceBot) getXMPPClient() (*xmpp.Client, error) {
 		Password: bot.Config.HipchatPassword,
 		NoTLS:    true,
 	}
+
+	options.TLSConfig = new(tls.Config)
+	options.TLSConfig.ServerName = "chat.hipchat.com"
 
 	return options.NewClient()
 }
