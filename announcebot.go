@@ -110,20 +110,18 @@ func (bot *AnnounceBot) Start(l net.Listener) error {
 	bot.db = redis.NewClient(bot.Config.GetRedisOptions())
 
 	// Start the chat server
-	log.Info("Starting XMPP client")
-	bot.serveXMPP()
-	log.Info("XMPP client started succesfully")
+	if bot.Config.HipchatUser != "" {
+		log.Info("Starting XMPP client")
+		bot.serveXMPP()
+		log.Info("XMPP client started succesfully")
+	}
 
 	// Start the API server
 	log.Info("Starting the API server")
 	bot.listener = l
 	r := bot.getRoutes()
 
-	if err := http.Serve(bot.listener, r); err != nil {
-		return err
-	}
-
-	return nil
+	return http.Serve(bot.listener, r)
 }
 
 // ListenAndStart starts the bot and begins listening for API requests

@@ -37,13 +37,6 @@ func (bot *AnnounceBot) getRoutes() http.Handler {
 func (bot *AnnounceBot) announceHandler(w http.ResponseWriter, r *http.Request) {
 	config := getConfiguration(r)
 
-	subscribers, err := bot.getSubscribers()
-	if err != nil {
-		log.WithError(err).Error("An error occurred while retrieving subscribers")
-		w.WriteHeader(204)
-		return
-	}
-
 	message, err := bot.MessageFactory()
 	if err != nil {
 		log.WithError(err).Error("No message generated for the announcement")
@@ -67,31 +60,41 @@ func (bot *AnnounceBot) announceHandler(w http.ResponseWriter, r *http.Request) 
 
 	}
 
-	go func() {
-		talk, err := bot.getXMPPClient()
-		if err != nil {
-			log.WithError(err).WithField("message", message).Error("Error opening XMPP connection to send the announcement")
-			return
-		}
-		for _, userID := range subscribers {
-			userlog := log.WithField("user", userID).WithField("message", message)
-
-			user, _, err := bot.chatAPI.User.View(userID)
-			if err != nil {
-				userlog.WithError(err).Error("Could not find the user via the Hipchat API")
-				continue
-			}
-
-			_, err = talk.Send(xmpp.Chat{Remote: user.XMPPJid, Type: "chat", Text: message})
-			if err != nil {
-				userlog.WithError(err).Error("An error occurred while sending the announcement to a user")
-				continue
-			}
-			userlog.Info("Sent announcement to user")
-		}
-	}()
+	if config.HipchatUser != "" {
+		go bot.sendAnnouncementToUser(message)
+	}
 
 	w.WriteHeader(204)
+}
+
+func (bot *AnnounceBot) sendAnnouncementToUser(message string) {
+	subscribers, err := bot.getSubscribers()
+	if err != nil {
+		log.WithError(err).Error("An error occurred while retrieving subscribers")
+		return
+	}
+
+	talk, err := bot.getXMPPClient()
+	if err != nil {
+		log.WithError(err).WithField("message", message).Error("Error opening XMPP connection to send the announcement")
+		return
+	}
+	for _, userID := range subscribers {
+		userlog := log.WithField("user", userID).WithField("message", message)
+
+		user, _, err := bot.chatAPI.User.View(userID)
+		if err != nil {
+			userlog.WithError(err).Error("Could not find the user via the Hipchat API")
+			continue
+		}
+
+		_, err = talk.Send(xmpp.Chat{Remote: user.XMPPJid, Type: "chat", Text: message})
+		if err != nil {
+			userlog.WithError(err).Error("An error occurred while sending the announcement to a user")
+			continue
+		}
+		userlog.Info("Sent announcement to user")
+	}
 }
 
 func (bot *AnnounceBot) testHandler(w http.ResponseWriter, r *http.Request) {

@@ -11,8 +11,8 @@ type Configuration struct {
 	Port            int    `default:"8080" required:"true"`
 	HipchatAPIHost  string `envconfig:"HIPCHAT_API_HOST" default:"api.hipchat.com"`
 	HipchatXMPPHost string `envconfig:"HIPCHAT_XMPP_HOST" default:"chat.hipchat.com:5222"`
-	HipchatUser     string `envconfig:"HIPCHAT_USER" required:"true"`
-	HipchatPassword string `envconfig:"HIPCHAT_PASSWORD" required:"true"`
+	HipchatUser     string `envconfig:"HIPCHAT_USER"`
+	HipchatPassword string `envconfig:"HIPCHAT_PASSWORD"`
 	HipchatAPIToken string `envconfig:"HIPCHAT_API_TOKEN" required:"true"`
 	AnnounceRoom    string `envconfig:"ANNOUNCE_ROOM" default:"-1"`
 	TestRoom        string `envconfig:"TEST_ROOM" required:"true"`
