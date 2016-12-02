@@ -82,7 +82,7 @@ func (bot *AnnounceBot) announceHandler(w http.ResponseWriter, r *http.Request) 
 				continue
 			}
 
-			_, err = talk.Send(xmpp.Chat{Remote: user.XmppJid, Type: "chat", Text: message})
+			_, err = talk.Send(xmpp.Chat{Remote: user.XMPPJid, Type: "chat", Text: message})
 			if err != nil {
 				userlog.WithError(err).Error("An error occurred while sending the announcement to a user")
 				continue
